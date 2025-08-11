@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-   const socket = io('https://tu-servidor-en-render.onrender.com');
+   const socket = io('https://constelaciondeluz.onrender.com');
     const skyContainer = document.getElementById('sky-container');
     const projectorPrompt = document.getElementById('projector-prompt');
 
@@ -84,3 +84,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 });
+
