@@ -1,4 +1,4 @@
-const socket = io('https://tu-servidor-en-render.onrender.com');
+const socket = io('https://constelaciondeluz.onrender.com');
 
 const maxAudiosInput = document.getElementById('max-audios');
 const timeoutInput = document.getElementById('timeout');
@@ -30,3 +30,4 @@ socket.on('project-reset', () => {
     setTimeout(() => statusDiv.textContent = '', 3000);
 
 });
+
