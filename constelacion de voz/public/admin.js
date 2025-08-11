@@ -1,4 +1,4 @@
-const socket = io(); // Se conecta al mismo servidor
+const socket = io('https://tu-servidor-en-render.onrender.com');
 
 const maxAudiosInput = document.getElementById('max-audios');
 const timeoutInput = document.getElementById('timeout');
@@ -28,4 +28,5 @@ socket.on('settings-updated', (settings) => {
 socket.on('project-reset', () => {
     statusDiv.textContent = '¡El proyecto ha sido reiniciado!';
     setTimeout(() => statusDiv.textContent = '', 3000);
+
 });
