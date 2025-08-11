@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Conexión al servidor que estará en tu propio computador
-    const socket = io(); 
+    const socket = io('https://tu-servidor-en-render.onrender.com'); 
 
     // --- ELEMENTOS DEL DOM ---
     const prologueContainer = document.getElementById('prologue-container');
@@ -80,4 +80,5 @@ document.addEventListener('DOMContentLoaded', () => {
         mainInterface.classList.remove('active');
         finalMessage.classList.add('active');
     });
+
 });
