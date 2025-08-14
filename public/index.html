@@ -8,17 +8,17 @@
     <!-- Título de la página -->
     <title>Constelaciones de Voz - Participa</title>
     
-    <!-- Hoja de estilos externa -->
+    <!-- Estilos externos -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Contenedor del cielo (fondo animado con estrellas) -->
+    <!-- Contenedor para el cielo estrellado o animación -->
     <div id="sky-container"></div>
 
-    <!-- Sección de introducción / prólogo -->
+    <!-- Sección del prólogo -->
     <div id="prologue-container" class="active">
         
-        <!-- Paso 1 del prólogo -->
+        <!-- Paso 1 -->
         <div class="prologue-step active" data-step="1">
             <h1>
                 A veces, en la inmensa oscuridad, una sola voz es suficiente para crear un universo.
@@ -26,7 +26,7 @@
             <button class="prologue-btn">Descubre cómo</button>
         </div>
 
-        <!-- Paso 2 del prólogo -->
+        <!-- Paso 2 -->
         <div class="prologue-step" data-step="2">
             <h1>
                 Vivimos en un mundo hiperconectado, pero muchos nos sentimos aislados. 
@@ -35,7 +35,7 @@
             <button class="prologue-btn">Teje una luz</button>
         </div>
 
-        <!-- Paso 3 del prólogo -->
+        <!-- Paso 3 -->
         <div class="prologue-step" data-step="3">
             <h1>
                 Este es un experimento colectivo. 
@@ -55,7 +55,7 @@
             <span class="text">Mantén presionado para grabar</span>
         </button>
 
-        <!-- Controles de grabación (ocultos por defecto) -->
+        <!-- Controles de reproducción y envío -->
         <div id="recording-controls" class="hidden">
             <p>Tu luz está lista. ¿Quieres escucharla?</p>
             <audio id="audio-playback" controls></audio>
@@ -63,15 +63,19 @@
         </div>
     </div>
 
-    <!-- Mensaje final después de enviar -->
-     <div id="final-message" class="hidden">
+    <!-- Mensaje final -->
+    <div id="final-message" class="hidden">
         <h1 id="final-message-h1">Tu Luz Perdura.</h1>
-        <p id="final-message-p1">Tu voz se ha unido al coro cósmico, convirtiéndose en un faro de esperanza.</p>
-        <p id="final-message-p2">Ya no es solo tuya, ahora pertenece a la constelación.</p>
+        <p id="final-message-p1">
+            Tu voz se ha unido al coro cósmico, convirtiéndose en un faro de esperanza.
+        </p>
+        <p id="final-message-p2">
+            Ya no es solo tuya, ahora pertenece a la constelación.
+        </p>
         <button id="explore-button" class="prologue-btn">Explora la Constelación</button>
     </div>
 
-    <!-- Scripts externos -->
+    <!-- Scripts -->
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script src="user.js"></script>
 </body>
