@@ -1,17 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const socket = io('https://constelaciondeluz.onrender.com'); 
+    // Reemplaza esta URL por la de tu servidor real en Render
+    const socket = io('https://constelaciondeluz.onrender.com');
 
-    // Referencias a los elementos del DOM (igual que antes)
+    // --- ELEMENTOS DEL DOM ---
     const prologueContainer = document.getElementById('prologue-container');
+    const steps = document.querySelectorAll('.prologue-step');
     const mainInterface = document.getElementById('main-interface');
     const finalMessage = document.getElementById('final-message');
-    const recordButton = document.getElementById('record-button');
-    const sendButton = document.getElementById('send-button');
-    const exploreButton = document.getElementById('explore-button');
-    const audioPlayback = document.getElementById('audio-playback');
-    const prologueBtns = document.querySelectorAll('.prologue-btn');
-    const startExperienceBtn = document.getElementById('start-experience-btn');
-    const skyContainer = document.getElementById('sky-container');
+    // ... (El resto de las referencias al DOM son las mismas que ya tenías)
 
     let currentStep = 1;
     let mediaRecorder;
@@ -19,82 +15,73 @@ document.addEventListener('DOMContentLoaded', () => {
     let isExploring = false;
     let singleAudioPlayer = new Audio();
 
-    // Lógica del Prólogo (idéntica a la que me pasaste, pero completa)
-    function showPrologueStep(step) {
-        document.querySelectorAll('.prologue-step').forEach(el => el.classList.remove('active'));
-        document.querySelector(`.prologue-step[data-step="${step}"]`).classList.add('active');
+    // --- NUEVA FUNCIÓN DE TRANSICIÓN COREOGRAFIADA ---
+    function transitionTo(outgoingElement, incomingElement) {
+        if (outgoingElement) {
+            outgoingElement.classList.add('fading-out');
+            setTimeout(() => {
+                outgoingElement.classList.remove('active');
+                outgoingElement.classList.remove('fading-out');
+            }, 800); // Coincide con la duración de la transición en CSS
+        }
+        
+        setTimeout(() => {
+            if (incomingElement) {
+                incomingElement.classList.add('active');
+            }
+        }, outgoingElement ? 400 : 0); // Empieza a aparecer a la mitad de la transición de salida
     }
-    prologueBtns.forEach(btn => {
+
+    // --- LÓGICA DEL PRÓLOGO (Actualizada) ---
+    steps.forEach(step => {
+        const btn = step.querySelector('.prologue-btn');
         btn.addEventListener('click', () => {
-            currentStep++;
-            if (currentStep <= 3) showPrologueStep(currentStep);
+            const nextStepNum = parseInt(step.dataset.step) + 1;
+            const nextStepEl = document.querySelector(`.prologue-step[data-step="${nextStepNum}"]`);
+
+            if (nextStepEl) {
+                step.classList.remove('active');
+                nextStepEl.classList.add('active');
+            } else {
+                // Es el último botón, transicionamos a la interfaz principal
+                transitionTo(prologueContainer, mainInterface);
+            }
         });
     });
-    startExperienceBtn.addEventListener('click', () => {
-        prologueContainer.classList.remove('active');
-        mainInterface.classList.add('active');
-    });
+
+    // --- LÓGICA DE GRABACIÓN (Sin cambios) ---
+    // ... (Pega aquí la lógica completa de grabación que ya tenías)
     
-    // Lógica de Grabación (idéntica, pero completa)
-    async function startRecording() {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            mediaRecorder = new MediaRecorder(stream);
-            mediaRecorder.start();
-            audioChunks = [];
-            mediaRecorder.addEventListener("dataavailable", event => audioChunks.push(event.data));
-            mediaRecorder.addEventListener("stop", () => {
-                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-                const audioUrl = URL.createObjectURL(audioBlob);
-                audioPlayback.src = audioUrl;
-                recordButton.classList.add('hidden');
-                document.getElementById('recording-controls').classList.remove('hidden');
-            });
-        } catch (err) { alert("No se pudo acceder al micrófono."); }
-    }
-    recordButton.addEventListener('pointerdown', () => {
-        recordButton.classList.add('recording');
-        startRecording();
-    });
-    recordButton.addEventListener('pointerup', () => {
-        if (mediaRecorder && mediaRecorder.state === "recording") {
-            mediaRecorder.stop();
-            recordButton.classList.remove('recording');
-        }
-    });
-
-    // Lógica de Envío (¡LA PARTE CORREGIDA!)
+    // --- LÓGICA DE ENVÍO (Actualizada para usar la nueva transición) ---
+    const sendButton = document.getElementById('send-button');
     sendButton.addEventListener('click', async () => {
-        sendButton.disabled = true;
-        sendButton.textContent = "Enviando...";
-
-        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-        const formData = new FormData();
-        formData.append('audio', audioBlob);
+        // ... (la lógica interna de 'fetch' y 'formData' se mantiene igual) ...
 
         try {
-            // Usamos fetch para enviar el archivo al nuevo endpoint del servidor
-            const response = await fetch('https://constelaciondeluz.onrender.com/upload', {
-                method: 'POST',
-                body: formData,
-            });
-
-            if (!response.ok) {
-                throw new Error('El servidor no pudo procesar el audio.');
-            }
-
-            mainInterface.classList.remove('active');
-            finalMessage.classList.add('active');
+            // ... (código de fetch) ...
+            
+            // Al tener éxito, usamos la nueva transición
+            transitionTo(mainInterface, finalMessage);
 
         } catch (error) {
-            console.error('Error al enviar el audio:', error);
-            alert('Hubo un problema al enviar tu luz. Por favor, inténtalo de nuevo.');
-        } finally {
-            sendButton.disabled = false;
-            sendButton.textContent = "Enviar a la constelación ✨";
+            // ... (manejo de errores) ...
         }
     });
 
+    // --- LÓGICA DE EXPLORACIÓN (Actualizada) ---
+    const exploreButton = document.getElementById('explore-button');
+    exploreButton.addEventListener('click', () => {
+        // Simplemente ocultamos el mensaje final. La exploración es sobre el cielo.
+        finalMessage.classList.remove('active');
+        document.getElementById('sky-container').style.cursor = 'pointer';
+        isExploring = true;
+        socket.emit('get-initial-state');
+    });
+
+    // --- El resto del código de user.js (createStar, lógica de sockets) se mantiene igual ---
+    // ... (Pega aquí el resto de las funciones que ya tenías)
+});
     // --- Lógica de Exploración (idéntica a la que me pasaste) ---
     // ...
 });
+
