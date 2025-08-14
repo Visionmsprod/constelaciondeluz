@@ -1,2 +1,153 @@
-/* Pega aquí el código CSS completo que te proporcioné en la respuesta anterior. Es el mismo para todos. */
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500&display=swap');:root{--text-color:rgba(255,255,255,0.8);--glow-color:rgba(230,230,255,0.7)}body,html{margin:0;padding:0;width:100%;height:100%;overflow:hidden;font-family:'Quicksand',sans-serif;color:var(--text-color);background:#000}#sky-container{position:absolute;top:0;left:0;width:100%;height:100%;background:radial-gradient(ellipse at bottom,#0a0a1a 0%,#000000 70%);transition:background 5s ease-in-out,filter 2s ease-in-out}.star{position:absolute;background-color:white;border-radius:50%;box-shadow:0 0 10px 2px var(--glow-color);animation:pulse 4s infinite ease-in-out;opacity:0;transition:opacity 3s ease-in-out}.star.visible{opacity:1}.star.newly-born{animation:pulse 2s 2 ease-in-out,fadeIn 3s forwards;box-shadow:0 0 20px 5px #fff}@keyframes pulse{0%,100%{transform:scale(1);opacity:0.7}50%{transform:scale(1.1);opacity:1}}@keyframes fadeIn{from{opacity:0;transform:scale(0.5)}to{opacity:1;transform:scale(1)}}#prologue-container,#main-interface,#final-message{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;justify-content:center;align-items:center;text-align:center;flex-direction:column;padding:2rem;box-sizing:border-box;z-index:10;opacity:0;visibility:hidden;transition:opacity 1.5s ease-in-out,visibility 1.5s}#prologue-container.active,#main-interface.active,#final-message.active{opacity:1;visibility:visible}.prologue-step{display:none;flex-direction:column;align-items:center;animation:fadeInText 2s forwards}.prologue-step.active{display:flex}h1{font-weight:300;font-size:2.5rem;max-width:800px;line-height:1.4;text-shadow:0 0 15px var(--glow-color)}p{font-size:1.2rem;max-width:600px;font-weight:400}.prologue-btn,button{background:transparent;border:1px solid var(--text-color);color:var(--text-color);padding:12px 24px;font-size:1rem;font-family:'Quicksand',sans-serif;cursor:pointer;border-radius:50px;margin-top:2rem;transition:background 0.3s,color 0.3s,transform 0.3s}.prologue-btn:hover,button:hover{background:var(--text-color);color:#000;transform:scale(1.05)}@keyframes fadeInText{from{opacity:0}to{opacity:1}}#record-button{padding:20px;width:300px;font-size:1.2rem;display:flex;align-items:center;justify-content:center;gap:10px}#record-button.recording{background:#c0392b;border-color:#c0392b;color:white;animation:recordPulse 1.5s infinite}@keyframes recordPulse{0%{box-shadow:0 0 0 0 rgba(192,57,43,0.7)}70%{box-shadow:0 0 0 20px rgba(192,57,43,0)}100%{box-shadow:0 0 0 0 rgba(192,57,43,0)}}#recording-controls{text-align:center}#audio-playback{display:block;margin:1rem auto}.hidden{display:none !important}#projector-prompt{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;z-index:20;opacity:0;visibility:hidden;transition:opacity 2s ease-in-out,visibility 2s}#projector-prompt.visible{opacity:1;visibility:visible}#sky-container.dimmed{filter:brightness(0.6)}
+/* --- 1. IMPORTACIÓN DE TIPOGRAFÍAS DESDE GOOGLE FONTS --- */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Lato:wght@300;400&family=Montserrat:wght@500;700&display=swap');
+
+/* --- 2. CONFIGURACIÓN GENERAL Y DE FONDO --- */
+:root {
+    --text-color: rgba(255, 255, 255, 0.85);
+    --glow-color: rgba(200, 200, 255, 0.6);
+    --dark-blue: #0a0a1a;
+    --black: #000000;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Lato', sans-serif; /* Fuente base para párrafos */
+    color: var(--text-color);
+    background: var(--black);
+}
+
+#sky-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(ellipse at bottom, var(--dark-blue) 0%, var(--black) 70%);
+    transition: background 5s ease-in-out, filter 1.5s ease-in-out;
+}
+
+/* --- 3. ESTILOS DE LAS ESTRELLAS (Mejorados) --- */
+.star {
+    position: absolute;
+    background-color: white;
+    border-radius: 50%;
+    box-shadow: 0 0 10px 2px var(--glow-color);
+    animation: pulse 4s infinite ease-in-out;
+    opacity: 0;
+    transition: opacity 3s ease-in-out;
+}
+
+.star.visible { opacity: 1; }
+
+.star.newly-born {
+    animation: pulse 2s 2 ease-in-out, fadeInStar 3s forwards;
+    box-shadow: 0 0 25px 8px #fff;
+}
+
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+@keyframes fadeInStar { from { opacity: 0; transform: scale(0.2); } to { opacity: 1; transform: scale(1); } }
+
+/* --- 4. CONTENEDORES Y LÓGICA DE TRANSICIÓN --- */
+#prologue-container, #main-interface, #final-message {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 2rem;
+    box-sizing: border-box;
+    z-index: 10;
+    opacity: 0;
+    visibility: hidden;
+    /* La transición clave */
+    transition: opacity 0.8s ease-in-out, visibility 0.8s;
+}
+
+#prologue-container.active, #main-interface.active, #final-message.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Clase para controlar el desvanecimiento de salida */
+#prologue-container.fading-out, #main-interface.fading-out, #final-message.fading-out {
+    opacity: 0;
+}
+
+.prologue-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    position: absolute;
+    transform: translateY(20px);
+    /* Transición para el efecto de "asentamiento" */
+    transition: opacity 1s ease-in-out, transform 1s ease-in-out, visibility 1s;
+}
+
+.prologue-step.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* --- 5. TIPOGRAFÍA MEJORADA --- */
+h1 {
+    font-family: 'Cormorant Garamond', serif; /* Fuente principal de títulos */
+    font-weight: 400;
+    font-size: clamp(2rem, 5vw, 3.5rem); /* Tamaño adaptable */
+    max-width: 900px;
+    line-height: 1.4;
+    letter-spacing: 0.5px;
+    text-shadow: 0 0 20px var(--glow-color);
+}
+
+p {
+    font-family: 'Lato', sans-serif; /* Fuente de cuerpo */
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
+    max-width: 600px;
+    font-weight: 300;
+    line-height: 1.7;
+}
+
+button, .prologue-btn {
+    font-family: 'Montserrat', sans-serif; /* Fuente de botones */
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    color: var(--text-color);
+    padding: 14px 28px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border-radius: 50px;
+    margin-top: 2.5rem;
+    transition: background 0.3s, color 0.3s, transform 0.3s, box-shadow 0.3s;
+}
+
+button:hover, .prologue-btn:hover {
+    background: rgba(255, 255, 255, 0.9);
+    color: #000;
+    transform: scale(1.05);
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.3);
+}
+
+/* --- 6. OTROS ESTILOS (Proyector, Grabación, etc.) --- */
+#record-button { padding: 20px; width: 350px; font-size: 1.1rem; }
+#record-button.recording { background: #c0392b; border-color: #c0392b; color: white; animation: recordPulse 1.5s infinite; }
+@keyframes recordPulse { 0% { box-shadow: 0 0 0 0 rgba(192,57,43,0.7); } 70% { box-shadow: 0 0 0 20px rgba(192,57,43,0); } 100% { box-shadow: 0 0 0 0 rgba(192,57,43,0); } }
+#recording-controls, #admin-panel { text-align: center; }
+#audio-playback { display: block; margin: 1rem auto; }
+.hidden { display: none !important; }
+#projector-prompt { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 20; opacity: 0; visibility: hidden; transition: opacity 2s ease-in-out, visibility 2s; }
+#projector-prompt.visible { opacity: 1; visibility: visible; }
+#sky-container.dimmed { filter: brightness(0.6); }
