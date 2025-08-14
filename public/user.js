@@ -1,18 +1,20 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Reemplaza esta URL por la de tu servidor real en Render
     const socket = io('https://constelaciondeluz.onrender.com');
 
     // --- ELEMENTOS DEL DOM ---
     const skyContainer = document.getElementById('sky-container');
     const prologueContainer = document.getElementById('prologue-container');
-    const steps = document.querySelectorAll('.prologue-step');
     const mainInterface = document.getElementById('main-interface');
     const finalMessage = document.getElementById('final-message');
     const recordButton = document.getElementById('record-button');
-    const recordingControls = document.getElementById('recording-controls');
     const sendButton = document.getElementById('send-button');
     const exploreButton = document.getElementById('explore-button');
     const audioPlayback = document.getElementById('audio-playback');
+    const recordingControls = document.getElementById('recording-controls');
+    const startExperienceBtn = document.getElementById('start-experience-btn');
+
+    // Seleccionamos todos los botones del prólogo, incluyendo "Descubre cómo"
+    const prologueBtns = document.querySelectorAll('#prologue-container .prologue-btn');
 
     let mediaRecorder;
     let audioChunks = [];
@@ -20,30 +22,30 @@ document.addEventListener('DOMContentLoaded', () => {
     let waitingForMyStar = false;
     let singleAudioPlayer = new Audio();
 
-    // --- LÓGICA DEL PRÓLOGO (ROBUSTA Y CORREGIDA) ---
-    function showStep(stepNumber) {
-        steps.forEach(step => {
+    // --- LÓGICA DEL PRÓLOGO ---
+    function showPrologueStep(stepNumber) {
+        document.querySelectorAll('.prologue-step').forEach(step => {
             step.classList.toggle('active', parseInt(step.dataset.step) === stepNumber);
         });
     }
 
-    // Asignamos los eventos a cada botón del prólogo de forma explícita
-    const step1Btn = document.querySelector('.prologue-step[data-step="1"] .prologue-btn');
-    const step2Btn = document.querySelector('.prologue-step[data-step="2"] .prologue-btn');
-    const startExperienceBtn = document.getElementById('start-experience-btn');
-
-    step1Btn.addEventListener('click', () => showStep(2));
-    step2Btn.addEventListener('click', () => showStep(3));
-    startExperienceBtn.addEventListener('click', () => {
-        prologueContainer.classList.add('fading-out');
-        setTimeout(() => {
-            prologueContainer.classList.remove('active');
-            mainInterface.classList.add('active');
-            prologueContainer.classList.remove('fading-out');
-        }, 800);
+    prologueBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const stepNum = parseInt(btn.parentElement.dataset.step);
+            if (stepNum < 3) {
+                showPrologueStep(stepNum + 1);
+            } else {
+                prologueContainer.classList.add('fading-out');
+                setTimeout(() => {
+                    prologueContainer.classList.remove('active');
+                    mainInterface.classList.add('active');
+                    prologueContainer.classList.remove('fading-out');
+                }, 800);
+            }
+        });
     });
 
-    // --- LÓGICA DE GRABACIÓN (COMPLETA Y CORRECTA) ---
+    // --- LÓGICA DE GRABACIÓN ---
     async function startRecording() {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -58,12 +60,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 recordButton.classList.add('hidden');
                 recordingControls.classList.remove('hidden');
             });
-        } catch (err) { alert("No se pudo acceder al micrófono."); }
+        } catch (err) {
+            alert("No se pudo acceder al micrófono.");
+        }
     }
+
     recordButton.addEventListener('pointerdown', () => {
         recordButton.classList.add('recording');
         startRecording();
     });
+
     recordButton.addEventListener('pointerup', () => {
         if (mediaRecorder && mediaRecorder.state === "recording") {
             mediaRecorder.stop();
@@ -71,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- LÓGICA DE ENVÍO (CON FEEDBACK VISUAL) ---
+    // --- LÓGICA DE ENVÍO ---
     sendButton.addEventListener('click', async () => {
         sendButton.disabled = true;
         sendButton.textContent = "Tejiendo tu luz...";
@@ -85,14 +91,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 method: 'POST',
                 body: formData,
             });
-            if (!response.ok) throw new Error('Error del servidor.');
-            
+            if (!response.ok) throw new Error('El servidor no pudo procesar el audio.');
+
             mainInterface.classList.add('fading-out');
             setTimeout(() => {
                 mainInterface.classList.remove('active');
                 mainInterface.classList.remove('fading-out');
             }, 800);
-            
+
             waitingForMyStar = true;
 
         } catch (error) {
@@ -103,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- LÓGICA DE CREACIÓN DE ESTRELLAS Y EXPLORACIÓN ---
+    // --- CREACIÓN DE ESTRELLAS ---
     function createStar(starData, isNew = false) {
         const starEl = document.createElement('div');
         starEl.className = 'star';
@@ -113,7 +119,9 @@ document.addEventListener('DOMContentLoaded', () => {
         starEl.style.width = `${size}px`;
         starEl.style.height = `${size}px`;
         starEl.classList.add('visible');
-        if (isNew) starEl.classList.add('newly-born');
+        if (isNew) {
+            starEl.classList.add('newly-born');
+        }
 
         starEl.dataset.audioUrl = starData.audioUrl;
         starEl.addEventListener('click', () => {
@@ -126,27 +134,27 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         skyContainer.appendChild(starEl);
     }
-    
+
     exploreButton.addEventListener('click', () => {
         finalMessage.classList.add('fading-out');
         setTimeout(() => {
             finalMessage.classList.remove('active');
             finalMessage.classList.remove('fading-out');
         }, 800);
-        
+
         skyContainer.style.cursor = 'pointer';
         isExploring = true;
         socket.emit('get-initial-state');
     });
 
-    // --- LÓGICA DE SOCKETS (PARA SINCRONIZACIÓN) ---
+    // --- SOCKETS ---
     socket.on('add-star', (starData) => {
         if (waitingForMyStar) {
             createStar(starData, true);
             waitingForMyStar = false;
             setTimeout(() => {
                 finalMessage.classList.add('active');
-            }, 2500); // Dar tiempo para ver la estrella
+            }, 2000);
         } else if (isExploring) {
             createStar(starData, false);
         }
@@ -160,12 +168,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     socket.on('project-reset', () => {
-        if (isExploring) {
-            skyContainer.innerHTML = '';
-        }
+        skyContainer.innerHTML = '';
     });
 });
-    });
-});
-
-
