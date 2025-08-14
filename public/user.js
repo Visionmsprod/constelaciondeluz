@@ -5,45 +5,45 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- ELEMENTOS DEL DOM ---
     const skyContainer = document.getElementById('sky-container');
     const prologueContainer = document.getElementById('prologue-container');
+    const steps = document.querySelectorAll('.prologue-step');
     const mainInterface = document.getElementById('main-interface');
     const finalMessage = document.getElementById('final-message');
     const recordButton = document.getElementById('record-button');
+    const recordingControls = document.getElementById('recording-controls');
     const sendButton = document.getElementById('send-button');
     const exploreButton = document.getElementById('explore-button');
     const audioPlayback = document.getElementById('audio-playback');
-    const recordingControls = document.getElementById('recording-controls');
-    const prologueBtns = document.querySelectorAll('.prologue-btn');
-    const startExperienceBtn = document.getElementById('start-experience-btn');
 
     let mediaRecorder;
     let audioChunks = [];
     let isExploring = false;
-    let waitingForMyStar = false; // ¡NUEVA VARIABLE CLAVE!
+    let waitingForMyStar = false;
     let singleAudioPlayer = new Audio();
 
-    // --- LÓGICA DEL PRÓLOGO (Correcta y Funcional) ---
-    function showPrologueStep(stepNumber) {
-        document.querySelectorAll('.prologue-step').forEach(step => {
+    // --- LÓGICA DEL PRÓLOGO (ROBUSTA Y CORREGIDA) ---
+    function showStep(stepNumber) {
+        steps.forEach(step => {
             step.classList.toggle('active', parseInt(step.dataset.step) === stepNumber);
         });
     }
-    prologueBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const stepNum = parseInt(btn.parentElement.dataset.step);
-            if (stepNum < 3) {
-                showPrologueStep(stepNum + 1);
-            } else {
-                prologueContainer.classList.add('fading-out');
-                setTimeout(() => {
-                    prologueContainer.classList.remove('active');
-                    mainInterface.classList.add('active');
-                    prologueContainer.classList.remove('fading-out');
-                }, 800);
-            }
-        });
+
+    // Asignamos los eventos a cada botón del prólogo de forma explícita
+    const step1Btn = document.querySelector('.prologue-step[data-step="1"] .prologue-btn');
+    const step2Btn = document.querySelector('.prologue-step[data-step="2"] .prologue-btn');
+    const startExperienceBtn = document.getElementById('start-experience-btn');
+
+    step1Btn.addEventListener('click', () => showStep(2));
+    step2Btn.addEventListener('click', () => showStep(3));
+    startExperienceBtn.addEventListener('click', () => {
+        prologueContainer.classList.add('fading-out');
+        setTimeout(() => {
+            prologueContainer.classList.remove('active');
+            mainInterface.classList.add('active');
+            prologueContainer.classList.remove('fading-out');
+        }, 800);
     });
 
-    // --- LÓGICA DE GRABACIÓN (Correcta y Funcional) ---
+    // --- LÓGICA DE GRABACIÓN (COMPLETA Y CORRECTA) ---
     async function startRecording() {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- LÓGICA DE ENVÍO (¡ACTUALIZADA!) ---
+    // --- LÓGICA DE ENVÍO (CON FEEDBACK VISUAL) ---
     sendButton.addEventListener('click', async () => {
         sendButton.disabled = true;
         sendButton.textContent = "Tejiendo tu luz...";
@@ -85,16 +85,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 method: 'POST',
                 body: formData,
             });
-            if (!response.ok) throw new Error('El servidor no pudo procesar el audio.');
-
-            // Transición: Ocultamos la interfaz de grabación y nos preparamos para ver la estrella
+            if (!response.ok) throw new Error('Error del servidor.');
+            
             mainInterface.classList.add('fading-out');
             setTimeout(() => {
                 mainInterface.classList.remove('active');
                 mainInterface.classList.remove('fading-out');
             }, 800);
             
-            waitingForMyStar = true; // ¡Activamos la espera de nuestra estrella!
+            waitingForMyStar = true;
 
         } catch (error) {
             console.error('Error al enviar el audio:', error);
@@ -114,9 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
         starEl.style.width = `${size}px`;
         starEl.style.height = `${size}px`;
         starEl.classList.add('visible');
-        if (isNew) {
-            starEl.classList.add('newly-born');
-        }
+        if (isNew) starEl.classList.add('newly-born');
 
         starEl.dataset.audioUrl = starData.audioUrl;
         starEl.addEventListener('click', () => {
@@ -142,20 +139,15 @@ document.addEventListener('DOMContentLoaded', () => {
         socket.emit('get-initial-state');
     });
 
-    // --- LÓGICA DE SOCKETS (¡ACTUALIZADA!) ---
+    // --- LÓGICA DE SOCKETS (PARA SINCRONIZACIÓN) ---
     socket.on('add-star', (starData) => {
-        // Si estábamos esperando nuestra propia estrella...
         if (waitingForMyStar) {
-            createStar(starData, true); // La creamos con la animación especial
-            waitingForMyStar = false; // Dejamos de esperar
-
-            // Después de 2 segundos, mostramos el mensaje final
+            createStar(starData, true);
+            waitingForMyStar = false;
             setTimeout(() => {
                 finalMessage.classList.add('active');
-            }, 2000);
-        } 
-        // Si ya estamos en modo exploración, simplemente añadimos la estrella de otro
-        else if (isExploring) {
+            }, 2500); // Dar tiempo para ver la estrella
+        } else if (isExploring) {
             createStar(starData, false);
         }
     });
@@ -168,10 +160,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     socket.on('project-reset', () => {
-        skyContainer.innerHTML = '';
-    });
-});
+        if (isExploring) {
+            skyContainer.innerHTML = '';
         }
     });
 });
+    });
+});
+
 
