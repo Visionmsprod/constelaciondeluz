@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Reemplaza esta URL por la de tu servidor real en Render
     const socket = io('https://constelaciondeluz.onrender.com');
 
     // --- ELEMENTOS DEL DOM ---
@@ -11,18 +12,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const exploreButton = document.getElementById('explore-button');
     const audioPlayback = document.getElementById('audio-playback');
     const recordingControls = document.getElementById('recording-controls');
-    const startExperienceBtn = document.getElementById('start-experience-btn');
-
-    // Seleccionamos todos los botones del prólogo, incluyendo "Descubre cómo"
+    
+    // Seleccionamos todos los botones del prólogo, usando tu método que funciona
     const prologueBtns = document.querySelectorAll('#prologue-container .prologue-btn');
 
     let mediaRecorder;
     let audioChunks = [];
     let isExploring = false;
-    let waitingForMyStar = false;
+    let waitingForMyStar = false; // La variable clave para ver tu estrella
     let singleAudioPlayer = new Audio();
 
-    // --- LÓGICA DEL PRÓLOGO ---
+    // --- LÓGICA DEL PRÓLOGO (Restaurada a tu versión funcional) ---
     function showPrologueStep(stepNumber) {
         document.querySelectorAll('.prologue-step').forEach(step => {
             step.classList.toggle('active', parseInt(step.dataset.step) === stepNumber);
@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (stepNum < 3) {
                 showPrologueStep(stepNum + 1);
             } else {
+                // Transición elegante para salir del prólogo
                 prologueContainer.classList.add('fading-out');
                 setTimeout(() => {
                     prologueContainer.classList.remove('active');
@@ -45,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- LÓGICA DE GRABACIÓN ---
+    // --- LÓGICA DE GRABACIÓN (Sin cambios, ya funcionaba) ---
     async function startRecording() {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -77,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- LÓGICA DE ENVÍO ---
+    // --- LÓGICA DE ENVÍO (Modificada para esperar la estrella) ---
     sendButton.addEventListener('click', async () => {
         sendButton.disabled = true;
         sendButton.textContent = "Tejiendo tu luz...";
@@ -93,6 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             if (!response.ok) throw new Error('El servidor no pudo procesar el audio.');
 
+            // Ocultamos la interfaz y activamos la espera de nuestra estrella
             mainInterface.classList.add('fading-out');
             setTimeout(() => {
                 mainInterface.classList.remove('active');
@@ -109,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- CREACIÓN DE ESTRELLAS ---
+    // --- LÓGICA DE CREACIÓN DE ESTRELLAS Y EXPLORACIÓN ---
     function createStar(starData, isNew = false) {
         const starEl = document.createElement('div');
         starEl.className = 'star';
@@ -134,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         skyContainer.appendChild(starEl);
     }
-
+    
     exploreButton.addEventListener('click', () => {
         finalMessage.classList.add('fading-out');
         setTimeout(() => {
@@ -147,15 +149,20 @@ document.addEventListener('DOMContentLoaded', () => {
         socket.emit('get-initial-state');
     });
 
-    // --- SOCKETS ---
+    // --- LÓGICA DE SOCKETS (Aquí ocurre la magia) ---
     socket.on('add-star', (starData) => {
+        // Si estábamos esperando nuestra propia estrella...
         if (waitingForMyStar) {
-            createStar(starData, true);
-            waitingForMyStar = false;
+            createStar(starData, true); // La creamos con la animación especial
+            waitingForMyStar = false; // Dejamos de esperar
+
+            // Después de 2 segundos, mostramos el mensaje final de agradecimiento
             setTimeout(() => {
                 finalMessage.classList.add('active');
-            }, 2000);
-        } else if (isExploring) {
+            }, 2500);
+        } 
+        // Si ya estamos en modo exploración, simplemente añadimos la estrella de otro
+        else if (isExploring) {
             createStar(starData, false);
         }
     });
@@ -168,6 +175,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     socket.on('project-reset', () => {
-        skyContainer.innerHTML = '';
+        if (isExploring) {
+            skyContainer.innerHTML = '';
+        }
     });
 });
