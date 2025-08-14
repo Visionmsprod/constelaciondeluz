@@ -53,6 +53,9 @@ body, html {
 
 /* --- 4. CONTENEDORES Y LÓGICA DE TRANSICIÓN --- */
 #prologue-container, #main-interface, #final-message {
+    /* ... (otras reglas) ... */
+    text-align: center; /* Asegura que el texto dentro de ellos esté centrado */
+}
     position: absolute;
     top: 0;
     left: 0;
@@ -151,3 +154,4 @@ button:hover, .prologue-btn:hover {
 #projector-prompt { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 20; opacity: 0; visibility: hidden; transition: opacity 2s ease-in-out, visibility 2s; }
 #projector-prompt.visible { opacity: 1; visibility: visible; }
 #sky-container.dimmed { filter: brightness(0.6); }
+
